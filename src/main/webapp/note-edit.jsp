@@ -1,11 +1,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.yunotes.entity.Note" %>
 <%@ page import="com.yunotes.entity.User" %>
+<%@ page import="com.yunotes.entity.Category" %>
+<%@ page import="java.util.List" %>
 <%
     Note note = (Note) request.getAttribute("note");
     boolean isEdit = (note != null && note.getId() != null);
     String pageTitle = isEdit ? "编辑笔记" : "新建笔记";
     String formAction = isEdit ? "update" : "add";
+    List<Category> categories = (List<Category>) request.getAttribute("categories");
 %>
 <!DOCTYPE html>
 <html>
@@ -82,7 +85,8 @@
             color: #333;
         }
         .form-group input[type="text"],
-        .form-group textarea {
+        .form-group textarea,
+        .form-group select {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -145,6 +149,23 @@
                 <div class="form-group">
                     <label for="title">标题</label>
                     <input type="text" id="title" name="title" value="<%= note != null ? (note.getTitle() != null ? note.getTitle() : "") : "" %>" required>
+                </div>
+                <div class="form-group">
+                    <label for="categoryId">分类</label>
+                    <select id="categoryId" name="categoryId">
+                        <option value="">未分类</option>
+                        <%
+                            if (categories != null) {
+                                Long selectedCategoryId = (note != null) ? note.getCategoryId() : null;
+                                for (Category cat : categories) {
+                                    String selected = (selectedCategoryId != null && selectedCategoryId.equals(cat.getId())) ? "selected" : "";
+                        %>
+                        <option value="<%= cat.getId() %>" <%= selected %>><%= cat.getName() %></option>
+                        <%
+                                }
+                            }
+                        %>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="content">内容</label>

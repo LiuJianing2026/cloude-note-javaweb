@@ -17,6 +17,11 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
+    public List<Note> searchNotes(Long userId, String keyword, Long categoryId) {
+        return noteDao.searchNotes(userId, keyword, categoryId);
+    }
+
+    @Override
     public Note getNoteById(Long id, Long userId) {
         Note note = noteDao.findById(id);
         if (note == null) {

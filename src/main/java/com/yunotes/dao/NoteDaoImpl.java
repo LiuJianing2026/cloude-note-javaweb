@@ -55,6 +55,48 @@ public class NoteDaoImpl implements NoteDao {
     }
 
     @Override
+    public List<Note> searchNotes(Long userId, String keyword, Long categoryId) {
+        StringBuilder sql = new StringBuilder("SELECT id, user_id, category_id, title, content, create_time, update_time, is_deleted FROM t_note WHERE user_id = ? AND is_deleted = 0");
+        List<Object> params = new ArrayList<>();
+        params.add(userId);
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql.append(" AND (title LIKE ? OR content LIKE ?)");
+            String likeKeyword = "%" + keyword.trim() + "%";
+            params.add(likeKeyword);
+            params.add(likeKeyword);
+        }
+
+        if (categoryId != null) {
+            sql.append(" AND category_id = ?");
+            params.add(categoryId);
+        }
+
+        sql.append(" ORDER BY update_time DESC");
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<Note> notes = new ArrayList<>();
+        try {
+            conn = DBUtil.getConnection();
+            pstmt = conn.prepareStatement(sql.toString());
+            for (int i = 0; i < params.size(); i++) {
+                pstmt.setObject(i + 1, params.get(i));
+            }
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                notes.add(extractNote(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResources(conn, pstmt, rs);
+        }
+        return notes;
+    }
+
+    @Override
     public int insert(Note note) {
         String sql = "INSERT INTO t_note (user_id, category_id, title, content, create_time, update_time, is_deleted) VALUES (?, ?, ?, ?, ?, ?, 0)";
         Connection conn = null;
@@ -90,7 +132,7 @@ public class NoteDaoImpl implements NoteDao {
 
     @Override
     public int update(Note note) {
-        String sql = "UPDATE t_note SET title = ?, content = ?, update_time = ? WHERE id = ? AND user_id = ? AND is_deleted = 0";
+        String sql = "UPDATE t_note SET title = ?, content = ?, category_id = ?, update_time = ? WHERE id = ? AND user_id = ? AND is_deleted = 0";
         Connection conn = null;
         PreparedStatement pstmt = null;
         try {
@@ -98,9 +140,14 @@ public class NoteDaoImpl implements NoteDao {
             pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, note.getTitle());
             pstmt.setString(2, note.getContent());
-            pstmt.setTimestamp(3, new Timestamp(note.getUpdateTime().getTime()));
-            pstmt.setLong(4, note.getId());
-            pstmt.setLong(5, note.getUserId());
+            if (note.getCategoryId() != null) {
+                pstmt.setLong(3, note.getCategoryId());
+            } else {
+                pstmt.setNull(3, Types.BIGINT);
+            }
+            pstmt.setTimestamp(4, new Timestamp(note.getUpdateTime().getTime()));
+            pstmt.setLong(5, note.getId());
+            pstmt.setLong(6, note.getUserId());
             return pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -1,7 +1,10 @@
 package com.yunotes.servlet;
 
+import com.yunotes.entity.Category;
 import com.yunotes.entity.Note;
 import com.yunotes.entity.User;
+import com.yunotes.service.CategoryService;
+import com.yunotes.service.CategoryServiceImpl;
 import com.yunotes.service.NoteService;
 import com.yunotes.service.NoteServiceImpl;
 
@@ -19,6 +22,7 @@ public class NoteServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     private final NoteService noteService = new NoteServiceImpl();
+    private final CategoryService categoryService = new CategoryServiceImpl();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -70,8 +74,20 @@ public class NoteServlet extends HttpServlet {
     }
 
     private void listNotes(HttpServletRequest req, HttpServletResponse resp, User loginUser) throws ServletException, IOException {
-        List<Note> notes = noteService.listNotes(loginUser.getId());
+        String keyword = req.getParameter("keyword");
+        String categoryIdStr = req.getParameter("categoryId");
+        Long categoryId = null;
+        if (categoryIdStr != null && !categoryIdStr.isEmpty()) {
+            categoryId = Long.parseLong(categoryIdStr);
+        }
+
+        List<Note> notes = noteService.searchNotes(loginUser.getId(), keyword, categoryId);
+        List<Category> categories = categoryService.listCategories(loginUser.getId());
+
         req.setAttribute("notes", notes);
+        req.setAttribute("categories", categories);
+        req.setAttribute("keyword", keyword);
+        req.setAttribute("categoryId", categoryId);
         req.getRequestDispatcher("/note-list.jsp").forward(req, resp);
     }
 
@@ -90,22 +106,30 @@ public class NoteServlet extends HttpServlet {
     }
 
     private void toAdd(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        List<Category> categories = categoryService.listCategories(((User) req.getSession().getAttribute("loginUser")).getId());
+        req.setAttribute("categories", categories);
         req.getRequestDispatcher("/note-edit.jsp").forward(req, resp);
     }
 
     private void addNote(HttpServletRequest req, HttpServletResponse resp, User loginUser) throws ServletException, IOException {
         String title = req.getParameter("title");
         String content = req.getParameter("content");
+        String categoryIdStr = req.getParameter("categoryId");
 
         Note note = new Note();
         note.setUserId(loginUser.getId());
         note.setTitle(title);
         note.setContent(content);
+        if (categoryIdStr != null && !categoryIdStr.isEmpty()) {
+            note.setCategoryId(Long.parseLong(categoryIdStr));
+        }
 
         String error = noteService.addNote(note);
         if (error != null) {
+            List<Category> categories = categoryService.listCategories(loginUser.getId());
             req.setAttribute("errorMsg", error);
             req.setAttribute("note", note);
+            req.setAttribute("categories", categories);
             req.getRequestDispatcher("/note-edit.jsp").forward(req, resp);
             return;
         }
@@ -123,7 +147,9 @@ public class NoteServlet extends HttpServlet {
             req.getRequestDispatcher("/note-list.jsp").forward(req, resp);
             return;
         }
+        List<Category> categories = categoryService.listCategories(loginUser.getId());
         req.setAttribute("note", note);
+        req.setAttribute("categories", categories);
         req.getRequestDispatcher("/note-edit.jsp").forward(req, resp);
     }
 
@@ -131,17 +157,23 @@ public class NoteServlet extends HttpServlet {
         Long noteId = Long.parseLong(req.getParameter("id"));
         String title = req.getParameter("title");
         String content = req.getParameter("content");
+        String categoryIdStr = req.getParameter("categoryId");
 
         Note note = new Note();
         note.setId(noteId);
         note.setUserId(loginUser.getId());
         note.setTitle(title);
         note.setContent(content);
+        if (categoryIdStr != null && !categoryIdStr.isEmpty()) {
+            note.setCategoryId(Long.parseLong(categoryIdStr));
+        }
 
         String error = noteService.updateNote(note);
         if (error != null) {
+            List<Category> categories = categoryService.listCategories(loginUser.getId());
             req.setAttribute("errorMsg", error);
             req.setAttribute("note", note);
+            req.setAttribute("categories", categories);
             req.getRequestDispatcher("/note-edit.jsp").forward(req, resp);
             return;
         }

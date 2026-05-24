@@ -1,7 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.yunotes.entity.User" %>
 <%@ page import="com.yunotes.entity.Note" %>
+<%@ page import="com.yunotes.entity.Category" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.HashMap" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -65,6 +68,37 @@
         .btn:hover {
             background-color: #45a049;
         }
+        .btn-secondary {
+            background-color: #2196F3;
+        }
+        .btn-secondary:hover {
+            background-color: #1976D2;
+        }
+        .search-card {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .search-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .search-form input,
+        .search-form select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .search-form input[type="text"] {
+            flex: 1;
+        }
+        .search-form select {
+            min-width: 150px;
+        }
         .error-msg {
             color: #f44336;
             margin-bottom: 15px;
@@ -105,6 +139,14 @@
         .note-actions a:hover {
             color: #2196F3;
         }
+        .category-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            background-color: #e3f2fd;
+            color: #1976D2;
+            border-radius: 4px;
+            font-size: 12px;
+        }
         .empty-msg {
             text-align: center;
             padding: 50px;
@@ -127,11 +169,44 @@
         <% if (request.getAttribute("errorMsg") != null) { %>
         <div class="error-msg"><%= request.getAttribute("errorMsg") %></div>
         <% } %>
-        <div class="toolbar">
-            <a href="<%= request.getContextPath() %>/note?action=toAdd" class="btn">+ 新建笔记</a>
+
+        <div class="search-card">
+            <form action="<%= request.getContextPath() %>/note" method="get" class="search-form">
+                <input type="hidden" name="action" value="list">
+                <input type="text" name="keyword" placeholder="搜索笔记标题或内容" value="<%= request.getAttribute("keyword") != null ? request.getAttribute("keyword") : "" %>">
+                <select name="categoryId">
+                    <option value="">全部分类</option>
+                    <%
+                        List<Category> categories = (List<Category>) request.getAttribute("categories");
+                        Long selectedCategoryId = (Long) request.getAttribute("categoryId");
+                        if (categories != null) {
+                            for (Category cat : categories) {
+                                String selected = (selectedCategoryId != null && selectedCategoryId.equals(cat.getId())) ? "selected" : "";
+                    %>
+                    <option value="<%= cat.getId() %>" <%= selected %>><%= cat.getName() %></option>
+                    <%
+                            }
+                        }
+                    %>
+                </select>
+                <button type="submit" class="btn">查询</button>
+                <a href="<%= request.getContextPath() %>/note?action=toAdd" class="btn">+ 新建笔记</a>
+            </form>
         </div>
+
+        <div style="margin-bottom: 15px;">
+            <a href="<%= request.getContextPath() %>/category" class="btn btn-secondary">管理分类</a>
+        </div>
+
         <%
             List<Note> notes = (List<Note>) request.getAttribute("notes");
+            Map<Long, String> categoryMap = new HashMap<>();
+            if (categories != null) {
+                for (Category cat : categories) {
+                    categoryMap.put(cat.getId(), cat.getName());
+                }
+            }
+
             if (notes == null || notes.isEmpty()) {
         %>
         <div class="empty-msg">
@@ -143,6 +218,7 @@
             <thead>
                 <tr>
                     <th>标题</th>
+                    <th>分类</th>
                     <th>更新时间</th>
                     <th>操作</th>
                 </tr>
@@ -151,6 +227,15 @@
                 <% for (Note note : notes) { %>
                 <tr>
                     <td class="note-title"><%= note.getTitle() %></td>
+                    <td>
+                        <%
+                            String categoryName = "未分类";
+                            if (note.getCategoryId() != null && categoryMap.containsKey(note.getCategoryId())) {
+                                categoryName = categoryMap.get(note.getCategoryId());
+                            }
+                        %>
+                        <span class="category-tag"><%= categoryName %></span>
+                    </td>
                     <td><%= note.getUpdateTime() != null ? note.getUpdateTime().toString().substring(0, 19) : "" %></td>
                     <td class="note-actions">
                         <a href="<%= request.getContextPath() %>/note?action=detail&id=<%= note.getId() %>">查看</a>
