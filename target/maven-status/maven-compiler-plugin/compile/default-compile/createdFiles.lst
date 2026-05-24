@@ -1,4 +1,6 @@
 com\yunotes\servlet\TestServlet.class
+com\yunotes\servlet\LoginServlet.class
+com\yunotes\servlet\LogoutServlet.class
 com\yunotes\entity\Note.class
 com\yunotes\service\NoteService.class
 com\yunotes\entity\User.class

@@ -7,7 +7,9 @@ D:\JavaProjects\cloud-note-javaweb\src\main\java\com\yunotes\service\UserService
 D:\JavaProjects\cloud-note-javaweb\src\main\java\com\yunotes\servlet\RegisterServlet.java
 D:\JavaProjects\cloud-note-javaweb\src\main\java\com\yunotes\dao\UserDao.java
 D:\JavaProjects\cloud-note-javaweb\src\main\java\com\yunotes\entity\Note.java
+D:\JavaProjects\cloud-note-javaweb\src\main\java\com\yunotes\servlet\LoginServlet.java
 D:\JavaProjects\cloud-note-javaweb\src\main\java\com\yunotes\dao\UserDaoImpl.java
 D:\JavaProjects\cloud-note-javaweb\src\main\java\com\yunotes\util\DBUtil.java
+D:\JavaProjects\cloud-note-javaweb\src\main\java\com\yunotes\servlet\LogoutServlet.java
 D:\JavaProjects\cloud-note-javaweb\src\main\java\com\yunotes\dao\NoteDao.java
 D:\JavaProjects\cloud-note-javaweb\src\main\java\com\yunotes\service\NoteService.java
