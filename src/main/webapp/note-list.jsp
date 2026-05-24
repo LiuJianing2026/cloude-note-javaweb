@@ -1,10 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.yunotes.entity.User" %>
+<%@ page import="com.yunotes.entity.Note" %>
+<%@ page import="java.util.List" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>云笔记 - 首页</title>
+    <title>云笔记 - 笔记列表</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -42,23 +44,74 @@
         .user-info a:hover {
             background-color: rgba(255,255,255,0.3);
         }
-        .content {
-            max-width: 800px;
-            margin: 50px auto;
-            text-align: center;
-            background-color: white;
-            padding: 50px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
         }
-        .welcome {
-            font-size: 28px;
-            color: #333;
+        .toolbar {
             margin-bottom: 20px;
         }
-        .subtitle {
+        .btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .error-msg {
+            color: #f44336;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #ffebee;
+            border-radius: 4px;
+        }
+        .note-table {
+            width: 100%;
+            background-color: white;
+            border-collapse: collapse;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .note-table th, .note-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .note-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+            color: #333;
+        }
+        .note-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        .note-title {
+            font-weight: bold;
+            color: #2196F3;
+        }
+        .note-actions a {
+            margin-right: 10px;
             color: #666;
-            font-size: 16px;
+            text-decoration: none;
+        }
+        .note-actions a:hover {
+            color: #2196F3;
+        }
+        .empty-msg {
+            text-align: center;
+            padding: 50px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            color: #999;
         }
     </style>
 </head>
@@ -70,9 +123,45 @@
             <a href="<%= request.getContextPath() %>/logout">退出登录</a>
         </div>
     </div>
-    <div class="content">
-        <div class="welcome">🎉 欢迎使用云笔记！</div>
-        <div class="subtitle">你的个人知识库管理系统</div>
+    <div class="container">
+        <% if (request.getAttribute("errorMsg") != null) { %>
+        <div class="error-msg"><%= request.getAttribute("errorMsg") %></div>
+        <% } %>
+        <div class="toolbar">
+            <a href="<%= request.getContextPath() %>/note?action=toAdd" class="btn">+ 新建笔记</a>
+        </div>
+        <%
+            List<Note> notes = (List<Note>) request.getAttribute("notes");
+            if (notes == null || notes.isEmpty()) {
+        %>
+        <div class="empty-msg">
+            <p>暂无笔记</p>
+            <p><a href="<%= request.getContextPath() %>/note?action=toAdd" style="color: #2196F3;">点击创建第一篇笔记</a></p>
+        </div>
+        <% } else { %>
+        <table class="note-table">
+            <thead>
+                <tr>
+                    <th>标题</th>
+                    <th>更新时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (Note note : notes) { %>
+                <tr>
+                    <td class="note-title"><%= note.getTitle() %></td>
+                    <td><%= note.getUpdateTime() != null ? note.getUpdateTime().toString().substring(0, 19) : "" %></td>
+                    <td class="note-actions">
+                        <a href="<%= request.getContextPath() %>/note?action=detail&id=<%= note.getId() %>">查看</a>
+                        <a href="<%= request.getContextPath() %>/note?action=toEdit&id=<%= note.getId() %>">编辑</a>
+                        <a href="<%= request.getContextPath() %>/note?action=delete&id=<%= note.getId() %>" onclick="return confirm('确定要删除这篇笔记吗？')">删除</a>
+                    </td>
+                </tr>
+                <% } %>
+            </tbody>
+        </table>
+        <% } %>
     </div>
 </body>
 </html>
