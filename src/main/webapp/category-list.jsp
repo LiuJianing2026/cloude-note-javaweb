@@ -6,193 +6,175 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>云笔记 - 分类管理</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background-color: #2196F3;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .user-info span {
-            font-size: 16px;
-        }
-        .user-info a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 15px;
-            background-color: rgba(255,255,255,0.2);
-            border-radius: 4px;
-        }
-        .user-info a:hover {
-            background-color: rgba(255,255,255,0.3);
-        }
-        .container {
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        .card {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .card-title {
-            margin: 0 0 15px 0;
-            font-size: 18px;
-            color: #333;
-        }
-        .form-inline {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .form-inline input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .btn-primary {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #45a049;
-        }
-        .btn-secondary {
-            background-color: #9e9e9e;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background-color: #757575;
-        }
-        .error-msg {
-            color: #f44336;
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: #ffebee;
-            border-radius: 4px;
-        }
-        .category-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .category-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-        }
-        .category-item:last-child {
-            border-bottom: none;
-        }
-        .category-item:hover {
-            background-color: #f9f9f9;
-        }
-        .category-name {
-            font-size: 16px;
-            color: #333;
-        }
-        .category-actions a {
-            color: #f44336;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        .category-actions a:hover {
-            text-decoration: underline;
-        }
-        .empty-msg {
-            text-align: center;
-            padding: 30px;
-            color: #999;
-        }
-        .nav-links {
-            margin-bottom: 20px;
-        }
-        .nav-links a {
-            color: #2196F3;
-            text-decoration: none;
-            margin-right: 15px;
-        }
-        .nav-links a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <title>分类管理 - 云笔记</title>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/static/css/style.css">
+    <script src="<%= request.getContextPath() %>/static/js/main.js"></script>
 </head>
-<body>
-    <div class="header">
-        <h1>云笔记</h1>
-        <div class="user-info">
-            <span>欢迎你，<%= ((User) session.getAttribute("loginUser")).getUsername() %></span>
-            <a href="<%= request.getContextPath() %>/logout">退出登录</a>
+<body class="app-layout">
+    <!-- 左侧边栏 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1>云笔记</h1>
         </div>
-    </div>
-    <div class="container">
-        <div class="nav-links">
-            <a href="<%= request.getContextPath() %>/note?action=list">返回笔记列表</a>
+        <div class="user-section">
+            <div class="user-avatar">
+                <% 
+                    User loginUser = (User) session.getAttribute("loginUser");
+                    String avatar = "U";
+                    if (loginUser != null && loginUser.getUsername() != null && !loginUser.getUsername().isEmpty()) {
+                        avatar = String.valueOf(Character.toUpperCase(loginUser.getUsername().charAt(0)));
+                    }
+                    out.print(avatar);
+                %>
+            </div>
+            <div class="user-name">
+                <% 
+                    User user = (User) session.getAttribute("loginUser");
+                    out.print(user != null && user.getUsername() != null ? user.getUsername() : "");
+                %>
+            </div>
+            <div class="user-email">个人版</div>
         </div>
-        <div class="card">
-            <h2 class="card-title">添加分类</h2>
-            <% if (request.getAttribute("errorMsg") != null) { %>
-            <div class="error-msg"><%= request.getAttribute("errorMsg") %></div>
-            <% } %>
-            <form action="<%= request.getContextPath() %>/category" method="post" class="form-inline">
-                <input type="hidden" name="action" value="add">
-                <input type="text" name="name" placeholder="请输入分类名称" required>
-                <button type="submit" class="btn btn-primary">添加</button>
+        <nav class="nav-section">
+            <h3>导航</h3>
+            <ul class="nav-list">
+                <li>
+                    <a href="<%= request.getContextPath() %>/note?action=list">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        全部笔记
+                    </a>
+                </li>
+                <li>
+                    <a href="<%= request.getContextPath() %>/category?action=list" class="active">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        分类管理
+                    </a>
+                </li>
+            </ul>
+            <h3>标签</h3>
+            <ul class="nav-list">
+                <%
+                    List<Category> categories = (List<Category>) request.getAttribute("categories");
+                    if (categories != null) {
+                        for (Category cat : categories) {
+                %>
+                <li>
+                    <a href="<%= request.getContextPath() %>/note?action=list&categoryId=<%= cat.getId() %>">
+                        <span class="category-dot"></span>
+                        <%= cat.getName() %>
+                    </a>
+                </li>
+                <%
+                        }
+                    }
+                %>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn-new-note" onclick="location.href='<%= request.getContextPath() %>/note?action=toAdd'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                新建笔记
+            </button>
+            <a href="<%= request.getContextPath() %>/logout" class="logout-link">退出登录</a>
+        </div>
+    </aside>
+
+    <!-- 中间笔记列表 -->
+    <section class="note-list-panel">
+        <div class="list-header">
+            <h2>全部笔记</h2>
+            <form action="<%= request.getContextPath() %>/note" method="get" class="search-box">
+                <input type="hidden" name="action" value="list">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input type="text" name="keyword" placeholder="搜索笔记...">
             </form>
         </div>
-        <div class="card">
-            <h2 class="card-title">我的分类</h2>
+        <div class="notes-container">
             <%
-                List<Category> categories = (List<Category>) request.getAttribute("categories");
-                if (categories == null || categories.isEmpty()) {
+                List<com.yunotes.entity.Note> notes = (List<com.yunotes.entity.Note>) request.getAttribute("notes");
+                if (notes != null && !notes.isEmpty()) {
+                    for (com.yunotes.entity.Note n : notes) {
             %>
-            <div class="empty-msg">暂无分类</div>
-            <% } else { %>
-            <ul class="category-list">
-                <% for (Category category : categories) { %>
-                <li class="category-item">
-                    <span class="category-name"><%= category.getName() %></span>
-                    <span class="category-actions">
-                        <a href="<%= request.getContextPath() %>/category?action=delete&id=<%= category.getId() %>" onclick="return confirm('确定要删除该分类吗？删除后该分类下的笔记将变为未分类状态。')">删除</a>
-                    </span>
-                </li>
-                <% } %>
-            </ul>
-            <% } %>
+            <article class="note-card" onclick="location.href='<%= request.getContextPath() %>/note?action=detail&id=<%= n.getId() %>'">
+                <h3 class="note-card-title"><%= n.getTitle() %></h3>
+                <p class="note-card-preview"><%= n.getContent() != null ? n.getContent() : "" %></p>
+                <div class="note-card-meta">
+                    <span class="note-card-time"><%= n.getUpdateTime() != null ? n.getUpdateTime().toString().substring(0, 16) : "" %></span>
+                </div>
+            </article>
+            <%
+                    }
+                }
+            %>
         </div>
-    </div>
+    </section>
+
+    <!-- 右侧分类管理区域 -->
+    <section class="editor-panel">
+        <div class="category-panel">
+            <div class="panel-header">
+                <h1>分类管理</h1>
+            </div>
+
+            <!-- 新增分类表单 -->
+            <div class="category-form">
+                <form action="<%= request.getContextPath() %>/category" method="post" class="add-category-form">
+                    <input type="hidden" name="action" value="add">
+                    <div class="form-row">
+                        <input type="text" name="name" placeholder="输入分类名称..." required>
+                        <button type="submit" class="btn btn-primary">添加分类</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 错误提示 -->
+            <% if (request.getAttribute("errorMsg") != null) { %>
+            <div class="alert alert-error"><%= request.getAttribute("errorMsg") %></div>
+            <% } %>
+
+            <!-- 分类列表 -->
+            <div class="category-list">
+                <%
+                    if (categories != null && !categories.isEmpty()) {
+                        for (Category cat : categories) {
+                %>
+                <div class="category-item">
+                    <div class="category-color"></div>
+                    <div class="category-info">
+                        <span class="category-name"><%= cat.getName() %></span>
+                    </div>
+                    <div class="category-actions">
+                        <a href="<%= request.getContextPath() %>/note?action=list&categoryId=<%= cat.getId() %>" class="action-link">查看笔记</a>
+                        <a href="<%= request.getContextPath() %>/category?action=delete&id=<%= cat.getId() %>" class="action-link delete-category">删除</a>
+                    </div>
+                </div>
+                <%
+                        }
+                    } else {
+                %>
+                <div class="empty-categories">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <h3>暂无分类</h3>
+                    <p>创建分类来组织你的笔记</p>
+                </div>
+                <% } %>
+            </div>
+        </div>
+    </section>
 </body>
 </html>

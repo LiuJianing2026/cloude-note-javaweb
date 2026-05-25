@@ -3,103 +3,34 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>用户登录 - 云笔记</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .login-container {
-            background-color: white;
-            padding: 30px 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            width: 350px;
-        }
-        h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #666;
-        }
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 14px;
-        }
-        input[type="submit"] {
-            width: 100%;
-            padding: 12px;
-            background-color: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        input[type="submit"]:hover {
-            background-color: #1976D2;
-        }
-        .error-msg {
-            color: #e74c3c;
-            font-size: 14px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        .success-msg {
-            color: #27ae60;
-            font-size: 14px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        .register-link {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .register-link a {
-            color: #2196F3;
-            text-decoration: none;
-        }
-    </style>
+    <title>云笔记 - 用户登录</title>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/static/css/style.css">
 </head>
-<body>
-    <div class="login-container">
-        <h2>用户登录</h2>
+<body class="auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>云笔记</h1>
+            <p>个人知识库管理</p>
+        </div>
         <% if (request.getAttribute("successMsg") != null) { %>
-            <div class="success-msg"><%= request.getAttribute("successMsg") %></div>
+            <div class="alert alert-success"><%= request.getAttribute("successMsg") %></div>
         <% } %>
         <% if (request.getAttribute("errorMsg") != null) { %>
-            <div class="error-msg"><%= request.getAttribute("errorMsg") %></div>
+            <div class="alert alert-error"><%= request.getAttribute("errorMsg") %></div>
         <% } %>
-        <form action="<%=request.getContextPath()%>/login" method="post">
+        <form action="<%= request.getContextPath() %>/login" method="post" class="auth-form">
             <div class="form-group">
                 <label for="username">用户名</label>
-                <input type="text" id="username" name="username" required>
+                <input type="text" id="username" name="username" placeholder="请输入用户名" required>
             </div>
             <div class="form-group">
                 <label for="password">密码</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="password" name="password" placeholder="请输入密码" required>
             </div>
-            <input type="submit" value="登录">
+            <button type="submit">登录</button>
         </form>
-        <div class="register-link">
-            没有账号？<a href="<%=request.getContextPath()%>/register.jsp">立即注册</a>
+        <div class="auth-footer">
+            没有账号？<a href="<%= request.getContextPath() %>/register.jsp">立即注册</a>
         </div>
     </div>
 </body>

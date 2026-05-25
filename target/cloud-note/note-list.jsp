@@ -9,177 +9,107 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>云笔记 - 笔记列表</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background-color: #2196F3;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .user-info span {
-            font-size: 16px;
-        }
-        .user-info a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 15px;
-            background-color: rgba(255,255,255,0.2);
-            border-radius: 4px;
-        }
-        .user-info a:hover {
-            background-color: rgba(255,255,255,0.3);
-        }
-        .container {
-            max-width: 1000px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        .toolbar {
-            margin-bottom: 20px;
-        }
-        .btn {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .btn:hover {
-            background-color: #45a049;
-        }
-        .btn-secondary {
-            background-color: #2196F3;
-        }
-        .btn-secondary:hover {
-            background-color: #1976D2;
-        }
-        .search-card {
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .search-form {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .search-form input,
-        .search-form select {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .search-form input[type="text"] {
-            flex: 1;
-        }
-        .search-form select {
-            min-width: 150px;
-        }
-        .error-msg {
-            color: #f44336;
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: #ffebee;
-            border-radius: 4px;
-        }
-        .note-table {
-            width: 100%;
-            background-color: white;
-            border-collapse: collapse;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .note-table th, .note-table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        .note-table th {
-            background-color: #f5f5f5;
-            font-weight: bold;
-            color: #333;
-        }
-        .note-table tr:hover {
-            background-color: #f9f9f9;
-        }
-        .note-title {
-            font-weight: bold;
-            color: #2196F3;
-        }
-        .note-actions a {
-            margin-right: 10px;
-            color: #666;
-            text-decoration: none;
-        }
-        .note-actions a:hover {
-            color: #2196F3;
-        }
-        .category-tag {
-            display: inline-block;
-            padding: 3px 8px;
-            background-color: #e3f2fd;
-            color: #1976D2;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-        .empty-msg {
-            text-align: center;
-            padding: 50px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            color: #999;
-        }
-    </style>
+    <title>云笔记 - 我的笔记</title>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/static/css/style.css">
+    <script src="<%= request.getContextPath() %>/static/js/main.js"></script>
 </head>
-<body>
-    <div class="header">
-        <h1>云笔记</h1>
-        <div class="user-info">
-            <span>欢迎你，<%= ((User) session.getAttribute("loginUser")).getUsername() %></span>
-            <a href="<%= request.getContextPath() %>/logout">退出登录</a>
+<body class="app-layout">
+    <!-- 左侧边栏 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1>云笔记</h1>
         </div>
-    </div>
-    <div class="container">
-        <% if (request.getAttribute("errorMsg") != null) { %>
-        <div class="error-msg"><%= request.getAttribute("errorMsg") %></div>
-        <% } %>
+        <div class="user-section">
+            <div class="user-avatar">
+                <% 
+                    User loginUser = (User) session.getAttribute("loginUser");
+                    String avatar = "U";
+                    if (loginUser != null && loginUser.getUsername() != null && !loginUser.getUsername().isEmpty()) {
+                        avatar = String.valueOf(Character.toUpperCase(loginUser.getUsername().charAt(0)));
+                    }
+                    out.print(avatar);
+                %>
+            </div>
+            <div class="user-name">
+                <% 
+                    User user = (User) session.getAttribute("loginUser");
+                    out.print(user != null && user.getUsername() != null ? user.getUsername() : "");
+                %>
+            </div>
+            <div class="user-email">个人版</div>
+        </div>
+        <nav class="nav-section">
+            <h3>导航</h3>
+            <ul class="nav-list">
+                <li>
+                    <a href="<%= request.getContextPath() %>/note?action=list" class="active">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        全部笔记
+                    </a>
+                </li>
+                <li>
+                    <a href="<%= request.getContextPath() %>/category?action=list">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        分类管理
+                    </a>
+                </li>
+            </ul>
+            <h3>标签</h3>
+            <ul class="nav-list">
+                <%
+                    List<Category> categories = (List<Category>) request.getAttribute("categories");
+                    if (categories != null) {
+                        for (Category cat : categories) {
+                %>
+                <li>
+                    <a href="<%= request.getContextPath() %>/note?action=list&categoryId=<%= cat.getId() %>">
+                        <span class="category-dot"></span>
+                        <%= cat.getName() %>
+                    </a>
+                </li>
+                <%
+                        }
+                    }
+                %>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn-new-note" onclick="location.href='<%= request.getContextPath() %>/note?action=toAdd'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                新建笔记
+            </button>
+            <a href="<%= request.getContextPath() %>/logout" class="logout-link">退出登录</a>
+        </div>
+    </aside>
 
-        <div class="search-card">
-            <form action="<%= request.getContextPath() %>/note" method="get" class="search-form">
+    <!-- 中间笔记列表 -->
+    <section class="note-list-panel">
+        <div class="list-header">
+            <h2>全部笔记</h2>
+            <form action="<%= request.getContextPath() %>/note" method="get" class="search-box">
                 <input type="hidden" name="action" value="list">
-                <input type="text" name="keyword" placeholder="搜索笔记标题或内容" value="<%= request.getAttribute("keyword") != null ? request.getAttribute("keyword") : "" %>">
-                <select name="categoryId">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input type="text" name="keyword" placeholder="搜索笔记..." value="<%= request.getAttribute("keyword") != null ? request.getAttribute("keyword") : "" %>">
+            </form>
+            <div class="category-filter">
+                <select name="categoryId" onchange="this.form.submit()">
                     <option value="">全部分类</option>
                     <%
-                        List<Category> categories = (List<Category>) request.getAttribute("categories");
-                        Long selectedCategoryId = (Long) request.getAttribute("categoryId");
                         if (categories != null) {
+                            Long selectedCategoryId = (Long) request.getAttribute("categoryId");
                             for (Category cat : categories) {
                                 String selected = (selectedCategoryId != null && selectedCategoryId.equals(cat.getId())) ? "selected" : "";
                     %>
@@ -189,64 +119,76 @@
                         }
                     %>
                 </select>
-                <button type="submit" class="btn">查询</button>
-                <a href="<%= request.getContextPath() %>/note?action=toAdd" class="btn">+ 新建笔记</a>
-            </form>
+            </div>
         </div>
-
-        <div style="margin-bottom: 15px;">
-            <a href="<%= request.getContextPath() %>/category" class="btn btn-secondary">管理分类</a>
-        </div>
-
-        <%
-            List<Note> notes = (List<Note>) request.getAttribute("notes");
-            Map<Long, String> categoryMap = new HashMap<>();
-            if (categories != null) {
-                for (Category cat : categories) {
-                    categoryMap.put(cat.getId(), cat.getName());
+        <div class="notes-container">
+            <%
+                List<Note> notes = (List<Note>) request.getAttribute("notes");
+                Map<Long, String> categoryMap = new HashMap<>();
+                if (categories != null) {
+                    for (Category cat : categories) {
+                        categoryMap.put(cat.getId(), cat.getName());
+                    }
                 }
-            }
 
-            if (notes == null || notes.isEmpty()) {
-        %>
-        <div class="empty-msg">
-            <p>暂无笔记</p>
-            <p><a href="<%= request.getContextPath() %>/note?action=toAdd" style="color: #2196F3;">点击创建第一篇笔记</a></p>
-        </div>
-        <% } else { %>
-        <table class="note-table">
-            <thead>
-                <tr>
-                    <th>标题</th>
-                    <th>分类</th>
-                    <th>更新时间</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
+                if (notes == null || notes.isEmpty()) {
+            %>
+            <div class="empty-notes">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                <h3>暂无笔记</h3>
+                <p>点击下方按钮创建你的第一篇笔记</p>
+            </div>
+            <% } else { %>
                 <% for (Note note : notes) { %>
-                <tr>
-                    <td class="note-title"><%= note.getTitle() %></td>
-                    <td>
-                        <%
-                            String categoryName = "未分类";
-                            if (note.getCategoryId() != null && categoryMap.containsKey(note.getCategoryId())) {
-                                categoryName = categoryMap.get(note.getCategoryId());
-                            }
-                        %>
-                        <span class="category-tag"><%= categoryName %></span>
-                    </td>
-                    <td><%= note.getUpdateTime() != null ? note.getUpdateTime().toString().substring(0, 19) : "" %></td>
-                    <td class="note-actions">
-                        <a href="<%= request.getContextPath() %>/note?action=detail&id=<%= note.getId() %>">查看</a>
+                <article class="note-card" onclick="location.href='<%= request.getContextPath() %>/note?action=detail&id=<%= note.getId() %>'">
+                    <h3 class="note-card-title"><%= note.getTitle() %></h3>
+                    <p class="note-card-preview"><%= note.getContent() != null ? note.getContent() : "" %></p>
+                    <div class="note-card-meta">
+                        <span>
+                            <%
+                                String categoryName = "";
+                                if (note.getCategoryId() != null && categoryMap.containsKey(note.getCategoryId())) {
+                                    categoryName = categoryMap.get(note.getCategoryId());
+                            %>
+                            <span class="note-card-category"><%= categoryName %></span>
+                            <%
+                                }
+                            %>
+                        </span>
+                        <span class="note-card-time"><%= note.getUpdateTime() != null ? note.getUpdateTime().toString().substring(0, 16) : "" %></span>
+                    </div>
+                    <div class="note-card-actions">
                         <a href="<%= request.getContextPath() %>/note?action=toEdit&id=<%= note.getId() %>">编辑</a>
-                        <a href="<%= request.getContextPath() %>/note?action=delete&id=<%= note.getId() %>" onclick="return confirm('确定要删除这篇笔记吗？')">删除</a>
-                    </td>
-                </tr>
+                        <a href="<%= request.getContextPath() %>/note?action=delete&id=<%= note.getId() %>" class="delete-note">删除</a>
+                    </div>
+                </article>
                 <% } %>
-            </tbody>
-        </table>
-        <% } %>
-    </div>
+            <% } %>
+        </div>
+    </section>
+
+    <!-- 右侧预览区域 -->
+    <section class="editor-panel">
+        <div class="editor-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            <h3>选择一篇笔记</h3>
+            <p>或新建一篇开始写作</p>
+            <button class="btn-new-note" onclick="location.href='<%= request.getContextPath() %>/note?action=toAdd'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                新建笔记
+            </button>
+        </div>
+    </section>
 </body>
 </html>

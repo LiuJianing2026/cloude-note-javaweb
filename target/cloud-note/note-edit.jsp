@@ -14,144 +14,154 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>云笔记 - <%= pageTitle %></title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-        }
-        .header {
-            background-color: #2196F3;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .user-info span {
-            font-size: 16px;
-        }
-        .user-info a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 15px;
-            background-color: rgba(255,255,255,0.2);
-            border-radius: 4px;
-        }
-        .user-info a:hover {
-            background-color: rgba(255,255,255,0.3);
-        }
-        .container {
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        .form-card {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .form-title {
-            margin: 0 0 20px 0;
-            font-size: 20px;
-            color: #333;
-        }
-        .error-msg {
-            color: #f44336;
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: #ffebee;
-            border-radius: 4px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #333;
-        }
-        .form-group input[type="text"],
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-        .form-group textarea {
-            min-height: 300px;
-            resize: vertical;
-            font-family: Arial, sans-serif;
-        }
-        .form-actions {
-            display: flex;
-            gap: 10px;
-        }
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        .btn-primary {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .btn-primary:hover {
-            background-color: #45a049;
-        }
-        .btn-secondary {
-            background-color: #9e9e9e;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background-color: #757575;
-        }
-    </style>
+    <title><%= pageTitle %> - 云笔记</title>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/static/css/style.css">
+    <script src="<%= request.getContextPath() %>/static/js/main.js"></script>
 </head>
-<body>
-    <div class="header">
-        <h1>云笔记</h1>
-        <div class="user-info">
-            <span>欢迎你，<%= ((User) session.getAttribute("loginUser")).getUsername() %></span>
-            <a href="<%= request.getContextPath() %>/logout">退出登录</a>
+<body class="app-layout">
+    <!-- 左侧边栏 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1>云笔记</h1>
         </div>
-    </div>
-    <div class="container">
-        <div class="form-card">
-            <h2 class="form-title"><%= pageTitle %></h2>
-            <% if (request.getAttribute("errorMsg") != null) { %>
-            <div class="error-msg"><%= request.getAttribute("errorMsg") %></div>
-            <% } %>
-            <form action="<%= request.getContextPath() %>/note" method="post">
+        <div class="user-section">
+            <div class="user-avatar">
+                <% 
+                    User loginUser = (User) session.getAttribute("loginUser");
+                    String avatar = "U";
+                    if (loginUser != null && loginUser.getUsername() != null && !loginUser.getUsername().isEmpty()) {
+                        avatar = String.valueOf(Character.toUpperCase(loginUser.getUsername().charAt(0)));
+                    }
+                    out.print(avatar);
+                %>
+            </div>
+            <div class="user-name">
+                <% 
+                    User user = (User) session.getAttribute("loginUser");
+                    out.print(user != null && user.getUsername() != null ? user.getUsername() : "");
+                %>
+            </div>
+            <div class="user-email">个人版</div>
+        </div>
+        <nav class="nav-section">
+            <h3>导航</h3>
+            <ul class="nav-list">
+                <li>
+                    <a href="<%= request.getContextPath() %>/note?action=list">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                        </svg>
+                        全部笔记
+                    </a>
+                </li>
+                <li>
+                    <a href="<%= request.getContextPath() %>/category?action=list">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        分类管理
+                    </a>
+                </li>
+            </ul>
+            <h3>标签</h3>
+            <ul class="nav-list">
+                <%
+                    if (categories != null) {
+                        for (Category cat : categories) {
+                %>
+                <li>
+                    <a href="<%= request.getContextPath() %>/note?action=list&categoryId=<%= cat.getId() %>">
+                        <span class="category-dot"></span>
+                        <%= cat.getName() %>
+                    </a>
+                </li>
+                <%
+                        }
+                    }
+                %>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn-new-note" onclick="location.href='<%= request.getContextPath() %>/note?action=toAdd'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                新建笔记
+            </button>
+            <a href="<%= request.getContextPath() %>/logout" class="logout-link">退出登录</a>
+        </div>
+    </aside>
+
+    <!-- 中间笔记列表 -->
+    <section class="note-list-panel">
+        <div class="list-header">
+            <h2>全部笔记</h2>
+            <form action="<%= request.getContextPath() %>/note" method="get" class="search-box">
+                <input type="hidden" name="action" value="list">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input type="text" name="keyword" placeholder="搜索笔记...">
+            </form>
+        </div>
+        <div class="notes-container">
+            <%
+                List<Note> notes = (List<Note>) request.getAttribute("notes");
+                if (notes != null && !notes.isEmpty()) {
+                    for (Note n : notes) {
+            %>
+            <article class="note-card" onclick="location.href='<%= request.getContextPath() %>/note?action=detail&id=<%= n.getId() %>'">
+                <h3 class="note-card-title"><%= n.getTitle() %></h3>
+                <p class="note-card-preview"><%= n.getContent() != null ? n.getContent() : "" %></p>
+                <div class="note-card-meta">
+                    <span class="note-card-time"><%= n.getUpdateTime() != null ? n.getUpdateTime().toString().substring(0, 16) : "" %></span>
+                </div>
+            </article>
+            <%
+                    }
+                }
+            %>
+        </div>
+    </section>
+
+    <!-- 右侧编辑器区域 -->
+    <section class="editor-panel">
+        <div class="document-editor">
+            <!-- 工具栏 -->
+            <div class="editor-toolbar">
+                <button class="toolbar-btn" id="btn-bold" title="粗体 (Ctrl+B)">B</button>
+                <button class="toolbar-btn" id="btn-italic" title="斜体 (Ctrl+I)">I</button>
+                <div class="toolbar-divider"></div>
+                <button class="toolbar-btn" id="btn-h1" title="一级标题">#</button>
+                <button class="toolbar-btn" id="btn-h2" title="二级标题">##</button>
+                <div class="toolbar-divider"></div>
+                <button class="toolbar-btn" id="btn-ul" title="无序列表">•</button>
+                <button class="toolbar-btn" id="btn-ol" title="有序列表">1.</button>
+                <div class="toolbar-divider"></div>
+                <button class="toolbar-btn" id="btn-quote" title="引用">"</button>
+                <button class="toolbar-btn" id="btn-code" title="代码块">&lt;/&gt;</button>
+            </div>
+
+            <!-- 编辑区域 -->
+            <form action="<%= request.getContextPath() %>/note" method="post" class="editor-content-area">
                 <input type="hidden" name="action" value="<%= formAction %>">
                 <% if (isEdit) { %>
                 <input type="hidden" name="id" value="<%= note.getId() %>">
                 <% } %>
-                <div class="form-group">
-                    <label for="title">标题</label>
-                    <input type="text" id="title" name="title" value="<%= note != null ? (note.getTitle() != null ? note.getTitle() : "") : "" %>" required>
-                </div>
-                <div class="form-group">
-                    <label for="categoryId">分类</label>
+
+                <!-- 标题 -->
+                <input type="text" class="editor-title-input" id="title" name="title" 
+                       placeholder="输入笔记标题..." 
+                       value="<%= note != null ? (note.getTitle() != null ? note.getTitle() : "") : "" %>" required>
+
+                <!-- 分类选择 -->
+                <div class="editor-category-select">
+                    <label for="categoryId">分类：</label>
                     <select id="categoryId" name="categoryId">
                         <option value="">未分类</option>
                         <%
@@ -167,16 +177,18 @@
                         %>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label for="content">内容</label>
-                    <textarea id="content" name="content"><%= note != null && note.getContent() != null ? note.getContent() : "" %></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">保存</button>
-                    <a href="<%= request.getContextPath() %>/note?action=list" class="btn btn-secondary">取消</a>
+
+                <!-- 内容 -->
+                <textarea class="editor-textarea" id="editor-content" name="content" 
+                          placeholder="开始编写你的笔记...支持 Markdown 格式"><%= note != null && note.getContent() != null ? note.getContent() : "" %></textarea>
+
+                <!-- 操作按钮 -->
+                <div class="editor-actions">
+                    <button type="button" class="btn btn-secondary" onclick="location.href='<%= request.getContextPath() %>/note?action=list'">取消</button>
+                    <button type="submit" class="btn btn-primary">保存笔记</button>
                 </div>
             </form>
         </div>
-    </div>
+    </section>
 </body>
 </html>
